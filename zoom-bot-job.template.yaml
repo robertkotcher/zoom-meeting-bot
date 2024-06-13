@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: zoomsdk-job
+spec:
+  template:
+    metadata:
+      name: zoomsdk-job
+    spec:
+      containers:
+      - name: zoomsdk-container
+        image: your-image-name:latest
+        command: ["/tini", "--", "./bin/entry.sh"]
+        env:
+        - name: SIGNED_URL
+        volumeMounts:
+        - name: config-volume
+          mountPath: /tmp/meeting-sdk-linux-sample/config.toml
+          subPath: config.toml
+      restartPolicy: Never
+      volumes:
+      - name: config-volume
+        secret:
+          secretName: my-secret
+  backoffLimit: 4

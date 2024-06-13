@@ -48,7 +48,18 @@ build() {
 }
 
 run() {
-  exec ./"$BUILD"/zoomsdk;
+  # Start recording audio from the virtual sink's monitor to a file
+  parecord --file-format=wav --device=SpeakerOutput.monitor out/meeting_audio.wav &
+
+  # Keep track of parecord's PID to stop it later
+  RECORD_PID=$!
+
+  ./"$BUILD"/zoomsdk
+
+  # Stop recording
+  kill $RECORD_PID
+
+  curl -X PUT -T out/meeting_audio.wav "$SIGNED_URL"
 }
 
 build && run;

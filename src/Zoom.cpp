@@ -41,7 +41,12 @@ SDKError Zoom::createServices() {
     if (hasError(err)) return err;
 
     auto meetingServiceEvent = new MeetingServiceEvent();
-    meetingServiceEvent->setOnMeetingJoin(onJoin);
+
+    // we just want to exit so our wrapper script can save the OS-level audio
+    meetingServiceEvent->setOnMeetingEnd([this]() {
+        clean(); // Call the cleanup routine
+        exit(0); // Exit the program with status code 0
+    });
 
     err = m_meetingService->SetEvent(meetingServiceEvent);
     if (hasError(err)) return err;
